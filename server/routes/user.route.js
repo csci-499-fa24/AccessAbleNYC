@@ -120,7 +120,7 @@ router.post('/register',async (req,res) => {
 //login api
 router.post('/login',async (req,res) =>{
     const {email,password}=req.body;
-
+    
     const user = await User.findOne({email});
 
     if (!user){
@@ -138,4 +138,20 @@ router.post('/login',async (req,res) =>{
     res.json({token: token});
 });
 
+router.post('/feedback',async (req,res) =>{
+    const {email, feedback} = req.body;
+    if (!email || !feedback){
+        return res.status(400).json({sucess:false, message: 'Please provide all fields'});
+    }
+    const newFeedback = new Feedback({email,feedback});
+ 
+    try {
+        await newFeedback.save();
+        res.status(201).json({success: true, data: newFeedback});
+    } catch(error) {
+        console.log("Error in saving feedback: ", error.message);
+        res.status(500).json({success: false, message: "Server Error"});
+    }
+
+});
 export default router;
