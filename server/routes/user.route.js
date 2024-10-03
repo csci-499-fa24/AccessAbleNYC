@@ -4,8 +4,6 @@ import express from 'express';
 import User from '../models/users.model.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import Feedback from '../models/feedback.model.js'
-
 
 dotenv.config()
 
