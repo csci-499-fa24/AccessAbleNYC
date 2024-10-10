@@ -1,0 +1,29 @@
+name: Test Coverage
+
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16.x'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests with coverage
+      run: npm test -- --coverage
+      working-directory: ./server
+
+    - name: Jest coverage report
+      uses: ArtiomTr/jest-coverage-report-action@v2.3.1
+
