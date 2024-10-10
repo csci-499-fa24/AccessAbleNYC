@@ -19,6 +19,19 @@ jobs:
 
     - name: Install dependencies
       run: npm install
+      working-directory: ./server
+
+    - name: Install jest
+      run: npm install --save-dev jest
+      working-directory: ./server
+
+    - name: Install supertest
+      run: npm install supertest --save-dev
+      working-directory: ./server
+
+    - name: Install supertest
+      run:  npm install --save-dev @babel/preset-env
+      working-directory: ./server
 
     - name: Run tests with coverage
       run: npm test -- --coverage
@@ -26,4 +39,4 @@ jobs:
 
     - name: Jest coverage report
       uses: ArtiomTr/jest-coverage-report-action@v2.3.1
-
+      working-directory: ./server
