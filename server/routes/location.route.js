@@ -3,6 +3,25 @@ import Location from '../models/location.model.js';
 
 const router = express.Router();
 
+//Search Route
+router.get('/search', async (req, res) => {
+    const { type } = req.query;
+    try {
+        const locations = await Location.find({
+            Name: { $regex: new RegExp(type, 'i') }
+        });
+
+        if (!locations || locations.length === 0) {
+            return res.status(404).json({ message: 'No locations found' });
+        }
+        res.status(200).json(locations);
+    } catch (error) {
+        console.error('Error fetching locations:', error);
+        res.status(500).json({ message: 'Error fetching locations', error });
+    }
+});
+
+
 // Route to fetch all locations
 router.get('/locations', async (req, res) => {
     try {

@@ -69,17 +69,23 @@ const getIconByLocationType = (type) => {
     }
 };
 
-const MapComponent = ({ locations, nearbyLocations = [] }) => {
+const MapComponent = ({ locations, nearbyLocations = [], selectedLocation }) => {
     const [filter, setFilter] = useState('all');  // State for filtering location types
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby locations
+    
+    useEffect(() => {
+        selectedLocation ? setShowNearby(false) : setShowNearby(true);
+    }, [selectedLocation]);
 
     // Determine the locations to show based on the showNearby state
     const locationsToShow = showNearby ? nearbyLocations : locations;
 
     // Filter the locations based on the selected filter (e.g., playground, beach, etc.)
-    const filteredLocations = filter === 'all' 
-        ? locationsToShow 
-        : locationsToShow.filter(location => location.location_type === filter);
+    const filteredLocations = selectedLocation
+        ? locationsToShow.filter(location => location.Name === selectedLocation)
+        : filter === 'all'
+            ? locationsToShow
+            : locationsToShow.filter(location => location.location_type === filter);
 
     return (
         <div>

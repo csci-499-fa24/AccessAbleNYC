@@ -1,0 +1,29 @@
+.search-bar {
+    position: relative;
+    width: 54%;
+}
+/*button*/
+.custom-b{
+    border-radius:20px;
+    transition: background-color 0.3s ease;
+}
+
+.custom-b:hover {
+    background-color: #7f81e8; 
+    color: white; 
+}
+
+.dropdown-menu {
+    width: 82%;
+    z-index: 2000;
+    max-height: 300px; 
+    overflow-y: auto;  
+}
+
+.dropdown-item {
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #a7c8e9;
+}

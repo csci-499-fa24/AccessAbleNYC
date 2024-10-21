@@ -3,6 +3,7 @@ import '../style/Home.css';
 import NavBar from '../components/NavBar.jsx';
 import MapComponent from '../components/MapComponent'; 
 import Toast from 'react-bootstrap/Toast';
+import SearchBar from '../components/SearchBar'
 
 // Homepage which is the main page the user lands on
 function Home() {
@@ -11,6 +12,12 @@ function Home() {
     const [nearbyLocations, setNearbyLocations] = useState([]);
     const [showNoLocation, setShowNoLocation] = useState(false); // State to show no location to render
     const effectRan = useRef(false);
+    const [selectedLocation, setSelectedLocation] = useState('');
+
+    //user selected locations
+    const handleSearch = (searchTerm) => {
+        setSelectedLocation(searchTerm);
+    };
 
     useEffect(() => {
         if (effectRan.current) return;
@@ -81,11 +88,13 @@ function Home() {
         <div>
             <NavBar />
             <h1>Welcome, {name}</h1>
-
+            <SearchBar onSearch={handleSearch} />
             {/* Pass locations and nearbyLocations to the MapComponent */}
+            
             <MapComponent 
                 locations={locations} 
                 nearbyLocations={nearbyLocations} 
+                selectedLocation={selectedLocation}
             />
 
             <Toast 
