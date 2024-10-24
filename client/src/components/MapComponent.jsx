@@ -70,7 +70,12 @@ const getIconByLocationType = (type) => {
 };
 
 // Function to calculate the center of nearby locations
-const calculateCenter = (nearbyLocations) => {
+const calculateCenter = (nearbyLocations, selectedLocation) => {
+    if (selectedLocation) {
+            return [selectedLocation.lat, selectedLocation.lon];
+        }
+    
+
     if (nearbyLocations.length === 0) {
         // Default to NYC center if no nearby locations are available
         return [40.7128, -74.0060];
@@ -91,25 +96,37 @@ const calculateCenter = (nearbyLocations) => {
 };
 
 // This component updates the map's center when nearby locations change
-const MapCenterUpdater = ({ nearbyLocations }) => {
-    const map = useMap();
+const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
+    const map = useMap(); 
     useEffect(() => {
-        const newCenter = calculateCenter(nearbyLocations);
+        if (selectedLocation && selectedLocation.lat && selectedLocation.lon) {
+            // Check selected location
+            const newCenter = [selectedLocation.lat, selectedLocation.lon];
+            map.setView(newCenter, 13); // Center map on the selected location
+        } else {
+            const newCenter = calculateCenter(nearbyLocations);
         map.setView(newCenter);  // Update the map's center
-    }, [nearbyLocations, map]);
+        }
+    }, [nearbyLocations, selectedLocation, map]);
 
     return null;
 };
 
-const MapComponent = ({ locations, nearbyLocations = [] }) => {
+const MapComponent = ({ locations, nearbyLocations = [], selectedLocation }) => {
     const [filter, setFilter] = useState('all');  // State for filtering location types
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby locations
+
+    useEffect(() => {
+        selectedLocation ? setShowNearby(false) : setShowNearby(true);
+    }, [selectedLocation]);
 
     // Determine the locations to show based on the showNearby state
     const locationsToShow = showNearby ? nearbyLocations : locations;
 
     // Filter the locations based on the selected filter (e.g., playground, beach, etc.)
-    const filteredLocations = filter === 'all'
+    const filteredLocations = selectedLocation
+    ? locationsToShow.filter(location => location.Name === selectedLocation)
+    : filter === 'all'
         ? locationsToShow
         : locationsToShow.filter(location => location.location_type === filter);
 
@@ -150,7 +167,7 @@ const MapComponent = ({ locations, nearbyLocations = [] }) => {
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
                 {/* This component will update the map center when nearbyLocations changes */}
-                <MapCenterUpdater nearbyLocations={nearbyLocations} />
+                <MapCenterUpdater nearbyLocations={nearbyLocations} selectedLocation={selectedLocation}  />
 
                 {/* Render Markers for filtered locations */}
                 {filteredLocations.map((location, index) => {
