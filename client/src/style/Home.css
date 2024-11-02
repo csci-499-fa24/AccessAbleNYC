@@ -18,7 +18,8 @@ html, body, #root {
     background-color: #28a745;  /* Green background */
     color: white;               /* White text */
     border: none;               /* No border */
-    padding: 10px 15px;         /* Padding around the text */
+    width: 130px;
+    padding: 10px 10px;         /* Padding around the text */
     font-size: 16px;            /* Font size */
     border-radius: 5px;         /* Rounded corners */
     cursor: pointer;            /* Pointer cursor on hover */
@@ -36,7 +37,7 @@ html, body, #root {
 
 .button-container {
   display: flex;                /* Use flexbox */
-  justify-content: center;      /* Center horizontally */
+  justify-content: space-between;      /* Center horizontally */
   align-items: center;          /* Center vertically if necessary */
   margin: 20px 0;              /* Add some margin if needed */
 }
