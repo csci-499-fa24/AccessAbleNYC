@@ -267,7 +267,7 @@ function Profile() {
                                             <div className="d-flex gap-2"> 
                                                 <Button variant="outline-success" onClick={() => handleShow(location.Name)}>Show</Button>
                                                 <Button variant="outline-success" className='marginbutton' onClick={() => handlePathTo(location)}>Path to</Button>
-                                                <Button variant="outline-danger" className="marginbutton" onClick={() => handleAddLocation1(location._id)}
+                                                <Button variant="outline-success" className="marginbutton" onClick={() => handleAddLocation1(location._id)}
                                                     >Add
                                                 </Button>
                                             </div>

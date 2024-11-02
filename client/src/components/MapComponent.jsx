@@ -4,6 +4,11 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import 'leaflet-routing-machine';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
+import Toast from 'react-bootstrap/Toast';
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
+import { useNavigate } from 'react-router-dom';
 
 // Def custom icons for each location type
 const beachIconUrl = '/assets/beach-100.png';
@@ -79,7 +84,6 @@ const getIconByLocationType = (type, iconSize) => {
 
 // Function to calculate the center of nearby locations
 const calculateCenter = (nearbyLocations) => {
-    console.log("calculateCenter called")
     if (nearbyLocations.length === 0) {
         // Default to NYC center if no nearby locations are available
         return [40.7128, -74.0060];
@@ -99,29 +103,35 @@ const calculateCenter = (nearbyLocations) => {
     ];
 };
 
-const RoutingMachine = ({start, routeTo}) => {
+const RoutingMachine = ({ start, routeTo }) => {
     const map = useMap();
     const routingControlRef = useRef(null);
+
     useEffect(() => {
-        if (start.lat!=null && start.lon!=null && routeTo.lat!=null && routeTo.lon!=null){
+        if (start.lat != null && start.lon != null && routeTo.lat != null && routeTo.lon != null) {
             if (!routingControlRef.current) {
                 routingControlRef.current = L.Routing.control({
-                waypoints: [
+                    waypoints: [
+                        L.latLng(start.lat, start.lon),
+                        L.latLng(routeTo.lat, routeTo.lon)
+                    ],
+                    routeWhileDragging: false,
+                }).addTo(map);
+            } else {
+                routingControlRef.current.setWaypoints([
                     L.latLng(start.lat, start.lon),
                     L.latLng(routeTo.lat, routeTo.lon)
-                ],
-                routeWhileDragging: false,
-                }).addTo(map);
-            } 
+                ]);
+            }
         }
     }, [map, start, routeTo]);
-  
+
     return null;
 };
 
+
 // This component updates the map's center when nearby locations change
 const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
-    console.log("MapCenterUpdater called")
     const map = useMap();
 
     useEffect(() => {
@@ -142,6 +152,11 @@ const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
 const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination}) => {
     const [filter, setFilter] = useState('all');  // State for filtering location types
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
+    const [showToastError, setShowToastError] = useState(false);
+    const [showToastSuccess, setShowToastSuccess] = useState(false);
+    const [message, setMessage] = useState('');
+    const[directionModalOpen,setDirectionModalOpen]=useState(false);
+    const [recentlyOpened, setRecentlyOpened] = useState('');
 
     const [userId, setUserId] = useState('');
     const [iconSize, setIconSize] = useState([35, 35]);
@@ -157,7 +172,8 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
 
     const handleAddLocation1 = (locationId) => {
         if (!userId) {
-            alert('User ID is not set. Please Log in first.');
+            setMessage('User ID is not set. Please Log in first.');
+            setShowToastError(true);
             return;
         }
         const userQuery = { locationId: locationId };
@@ -170,13 +186,16 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(data.message);
+                setMessage(data.message);
+                setShowToastSuccess(true);
             } else {
-                alert('Unable to add location: ' + data.message);
+                setMessage('Unable to add location: ' + data.message);
+                setShowToastError(true);
             }
         })
         .catch(error => {
-            alert('Error: ' + error);
+            setMessage('Error: ' + error);
+            setShowToastError(true);
         });
     };
 
@@ -275,6 +294,9 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                 key={index} 
                                 position={[lat, lon]} 
                                 icon={getIconByLocationType(location.location_type, iconSize)}
+                                eventHandlers={{
+                                    click: () => setRecentlyOpened(location)
+                                }}
                                >
                                <Popup>
                                     {/* Display different information based on the location_type */}
@@ -290,6 +312,9 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                             <div className="button-container">
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
+                                                </button>
+                                                <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
+                                                    Directions
                                                 </button>
                                             </div>
 
@@ -307,8 +332,10 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
                                                 </button>
+                                                <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
+                                                    Directions
+                                                </button>
                                             </div>
-
                                         </div>
                                     )}
                                     {location.location_type === 'restroom' && (
@@ -322,6 +349,9 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                             <div className="button-container">
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
+                                                </button>
+                                                <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
+                                                    Directions
                                                 </button>
                                             </div>
 
@@ -338,8 +368,10 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
                                                 </button>
+                                                <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
+                                                    Directions
+                                                </button>
                                             </div>
-
                                         </div>
                                     )}
                                     {location.location_type === 'pedestrian_signal' && (
@@ -353,8 +385,10 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
                                                 </button>
+                                                <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
+                                                    Directions
+                                                </button>
                                             </div>
-
                                         </div>
                                     )}
                                     {/* For unknown location types */}
@@ -372,8 +406,10 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
                                                 </button>
+                                                <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
+                                                    Directions
+                                                </button>
                                             </div>
-
                                         </div>
                                     )}
                                 </Popup>
@@ -385,8 +421,128 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                     return null;  // Skip the marker if location coordinates are not available
                 })}
             </MapContainer>
+            <Toast onClose={() => setShowToastSuccess(false)} show={showToastSuccess} delay={3000} className="toast-bottom-right" bg='success' autohide>
+                <Toast.Header>
+                    <strong className="me-auto">Alert</strong>
+                </Toast.Header>
+                <Toast.Body>{message}</Toast.Body>
+            </Toast>
+            <Toast onClose={() => setShowToastError(false)} show={showToastError} delay={3000} className="toast-bottom-right" bg='danger' autohide>
+                <Toast.Header>
+                    <strong className="me-auto">Alert</strong>
+                </Toast.Header>
+                <Toast.Body>{message}</Toast.Body>
+            </Toast>
+            <DirectionModal
+            show={directionModalOpen}
+            onHide={() => setDirectionModalOpen(false)}
+            final = {recentlyOpened}
+            />
         </div>
     );
 };
+
+function DirectionModal(props) {
+    const [showToastError, setShowToastError] = useState(false);
+    const [message, setMessage] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [search, setSearch] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const navigate = useNavigate();
+
+    const handlePathTo = (start, destination) => {
+        if (start){
+            navigate(`/?lat=${destination.lat || destination.latitude}&lon=${destination.lon || destination.longitude}&preflat=${start.lat || start.latitude}&preflon=${start.lon || start.longitude}`);
+        }
+        else{
+            navigate(`/?lat=${destination.lat || destination.latitude}&lon=${destination.lon || destination.longitude}`);
+        }
+        props.onHide();
+        setSearchTerm('');
+        setSearch('');
+    };
+
+    const handleSearch = async (event) => {
+        setSearchTerm(event.target.value);
+        if (event.target.value) {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_PORT}/search?type=${event.target.value}`);
+                if (!response.ok) {
+                    throw new Error('Error fetching locations');
+                }
+                const data = await response.json();
+                setSearchResults(data);
+            } catch (error) {
+                console.error('Error fetching locations:', error);
+            }
+        } else {
+            setSearchResults([]);
+        }
+    };
+
+    const handleLocationSelection = (location) => {
+        setSearch(location);
+        setSearchTerm(location.Name); 
+        setSearchResults([]);
+    };
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        if(!searchTerm){
+            setMessage("Error: Please provide an input location");
+            setShowToastError(true);
+            return;
+        }
+        handlePathTo(search, props.final);
+    };
+
+    return (
+        <Modal
+            {...props}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+        >
+            <Modal.Header closeButton>
+                <Modal.Title id="contained-modal-title-vcenter">
+                    Directions
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form className="d-flex" onSubmit={handleSubmit}>
+                    <Form.Control
+                        type="search"
+                        placeholder="Search a starting point"
+                        className="me-2"
+                        aria-label="Search"
+                        value={searchTerm}
+                        style={{ borderRadius: '20px' }}
+                        onChange={handleSearch}
+                    />
+                    {searchResults.length > 0 && (
+                        <div className="add-dropdown-menu show position-absolute">
+                            {searchResults.map((result, index) => (
+                                <button key={index} className="dropdown-item" onClick={() => handleLocationSelection(result)}>
+                                    {result.Name}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                    <Button variant="outline-primary" className='addButton' style={{ borderRadius: '20px' }} onClick={() => setSearchTerm('Your Location')}>Your Location</Button>
+                    <Button variant="outline-success" className='addButton' style={{ borderRadius: '20px' }} type="submit">Find Route</Button>
+                </Form>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button onClick={props.onHide}>Close</Button>
+            </Modal.Footer>
+            <Toast onClose={() => setShowToastError(false)} show={showToastError} delay={3000} className="toast-bottom-right" bg='danger' autohide>
+                <Toast.Header>
+                    <strong className="me-auto">Alert</strong>
+                </Toast.Header>
+                <Toast.Body>{message}</Toast.Body>
+            </Toast>
+        </Modal>
+    );
+}
 
 export default MapComponent;
