@@ -55,8 +55,8 @@ router.get('/location/:name', async (req, res) => {
             return res.status(404).json({ message: 'Location not found' });
         }   
         const location = locations[0];
-        const latitude = location.latitude || location.lat;
-        const longitude = location.longitude || location.lon;
+        const latitude = location.latitude;
+        const longitude = location.longitude;
 
         if (latitude && longitude) {
             return res.json({ latitude, longitude});
