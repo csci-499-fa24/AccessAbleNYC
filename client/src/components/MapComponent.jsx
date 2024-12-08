@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import '../style/MapComponent.css';
 import ReviewSideBar from './ReviewSideBar';
 import Cookies from 'js-cookie';
+import { useLocation } from 'react-router-dom';
 
 
 // Def custom icons for each location type
@@ -283,10 +284,53 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
     return null;
 };
 
+const useFetchLocationCoords = (locationName) => {
+    const [locationCoords, setLocationCoords] = useState(null);
 
+    useEffect(() => {
+        if (locationName) {
+            console.log("Fetching coordinates for:", locationName);
+            const url = `${import.meta.env.VITE_PORT}/location/${encodeURIComponent(locationName)}`;
+
+            fetch(url)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status} - ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log("Data received from API:", data);
+
+                const lat = data.latitude;
+                const lon = data.longitude; 
+
+                if (lat && lon) {
+                    console.log("Using coordinates:", { lat, lon });
+                    setLocationCoords({ lat, lon });
+                } else {
+                    console.error("Coordinates not found for the location.");
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching location data:", error);
+            });
+        }
+    }, [locationName]);
+
+    return locationCoords;
+};
 //zooms out only when a new filler is applied. Otherwise, keeps zoom level, even when a icon is clicked.
-const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby }) => { 
+const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby, selectedLocation}) => { 
     const map = useMap();
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    const locationName = params.get('location');
+
+    const locationCoords = useFetchLocationCoords(locationName);
+
+    console.log("Location Coordinates:", locationCoords);
+      
     
     useEffect(() => {
         //THIS PART IS FOR CENTERING ON FILTER CHANGE, WHICH WE DONT WANT
@@ -303,21 +347,23 @@ const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby }) => {
         // else if (searchLoc && sCenter){
         //     newCenter = [slat, slon];
         // }
-   
+
         // if (newCenter) {
         //     map.setView(newCenter, map.getZoom());
         //}
         //SEARCH CENTERING && nearby (NEED TESTING)
-        let slat = (searchLoc?.lat ?? searchLoc?.latitude  );
-        let slon = (searchLoc?.lon ?? searchLoc?.longitude );
- 
-        if (showNearby==true && nearbyLocations.length > 0  && Object.keys(searchLoc).length === 0) {  
-            map.setView(calculateCenter(nearbyLocations), map.getZoom());}
-        else if (slat && slon){    
-            map.setView([slat, slon], map.getZoom());
+        if (locationCoords) {
+            map.setView([locationCoords.lat, locationCoords.lon], map.getZoom());
+        } else {
+            let slat = searchLoc?.lat ?? searchLoc?.latitude ?? selectedLocation?.lat ?? selectedLocation?.latitude;
+            let slon = searchLoc?.lon ?? searchLoc?.longitude ?? selectedLocation?.lon ?? selectedLocation?.longitude;
+            if (showNearby && nearbyLocations.length > 0 && (!searchLoc || Object.keys(searchLoc).length === 0) && (!selectedLocation || Object.keys(selectedLocation).length === 0)) {
+                map.setView(calculateCenter(nearbyLocations), map.getZoom());
+            } else if (slat && slon) {
+                map.setView([slat, slon], map.getZoom());
+            }
         }
-   
-    }, [ nearbyLocations, showNearby, searchLoc, map]);   
+    }, [locationCoords, nearbyLocations, showNearby, searchLoc, selectedLocation, map]);
 
     return null;
 };
@@ -536,17 +582,6 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                     Show Nearby Locations Only
             </label>
 
-            {/*
-            {userLocation && (
-                <MapContainer center={[userLocation.latitude, userLocation.longitude]} zoom={13} style={{ width: '100%', height: '400px' }}>
-                    {showNearby && nearbyLocations.map((location, index) => (
-                        <Marker key={index} position={{ lat: location.latitude, lng: location.longitude }}>
-                            <Popup>{location.name}</Popup>
-                        </Marker>
-                    ))}
-                </MapContainer>
-            )}
-            */}
             
 
             
@@ -568,6 +603,8 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                 // selectedLocation={selectedLocation ? [selectedLocation] : filteredLocations}
                 showNearby={showNearby}
                 searchLoc={searchLoc}
+                selectedLocation={selectedLocation}
+                
                 />
                 <RoutingMachine start={userCoord} routeTo={destination} trafficSignals={locations.filter(loc => loc.location_type === "pedestrian_signal")}/>
                 {/* Render Markers for filtered locations */}
