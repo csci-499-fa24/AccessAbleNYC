@@ -5,15 +5,17 @@
     text-align: center;
 }
 
-.greeting-message {
+/* .greeting-message {
   font-weight: bold;
   font-size: 1.5em;
-  margin-top: 0.5em;
-}
+  margin-top: 0.1em;
+} */
 
 .search-message{
-  font-size: 1em;
-  margin-bottom: 1em;
+  font-weight: bold;
+  font-size: 1.5em;
+  /* margin-bottom: 0.1em; */
+  margin: 0;
 }
 
 /*button*/

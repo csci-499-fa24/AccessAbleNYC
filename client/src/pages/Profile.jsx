@@ -256,7 +256,7 @@ function Profile() {
                         <ListGroup className="scrollable-list">
                             {favoriteLocations.map((location, index) => (
                                 <ListGroup.Item key={index} className={`d-flex justify-content-between align-items-center ${theme}`}>
-                                    {location.facility_name || location.Name || location.ntaname || 'No Name'}
+                                    {location.Name || location.ntaname || location.facility_name || 'No Name'}
                                     <div>
                                         <Button variant="outline-success" onClick={() => handleShow(location.Name)}>Show</Button>
                                         <Button variant="outline-success" className='marginbutton' onClick={() => handlePathTo(location)}>Path to</Button>
@@ -363,6 +363,7 @@ function ChangeEmailModal(props) {
     const [message, setMessage] = useState('');
     const { userid } = props;
     const navigate = useNavigate();
+    const { theme } = useTheme();
 
     const handleChangeEmail = (event) => {
         event.preventDefault();
@@ -391,18 +392,18 @@ function ChangeEmailModal(props) {
 
     return (
         <div>
-            <Modal
+            <Modal className={theme === 'dark' ? 'dark-mode' : ''}
             {...props}
             size="lg"
             aria-labelledby="contained-modal-title-vcenter"
             centered
             >
-            <Modal.Header closeButton>
-                <Modal.Title id="contained-modal-title-vcenter">
+            <Modal.Header closeButton className={theme === 'dark' ? 'dark-mode' : ''}>
+                <Modal.Title className={`${theme === 'dark' ? 'dark-mode' : ''} modal-title`}>
                 Change Email
                 </Modal.Title>
             </Modal.Header>
-            <Modal.Body className="d-flex justify-content-center">
+            <Modal.Body className={`${theme === 'dark' ? 'dark-mode' : ''} d-flex justify-content-center`}>
                 <Form onSubmit={handleChangeEmail}>
                     <Form.Group className="mb-3 label" controlId="formGroupCurrentPassword">
                         <Form.Label>Current Password</Form.Label>
@@ -417,7 +418,7 @@ function ChangeEmailModal(props) {
                     </div>
                 </Form>
             </Modal.Body>
-            <Modal.Footer>
+            <Modal.Footer className={theme === 'dark' ? 'dark-mode' : ''}>
                 <Button onClick={props.onHide}>Close</Button>
             </Modal.Footer>
             </Modal>
@@ -438,6 +439,7 @@ function ChangePasswordModal(props) {
     const [message, setMessage] = useState('');
     const { userid } = props;
     const navigate = useNavigate();
+    const { theme } = useTheme();
 
     const handleChangePassword = (event) => {
         event.preventDefault();
@@ -466,18 +468,18 @@ function ChangePasswordModal(props) {
 
     return (
         <div>
-            <Modal
+            <Modal className={theme === 'dark' ? 'dark-mode' : ''}
             {...props}
             size="lg"
             aria-labelledby="contained-modal-title-vcenter"
             centered
             >
-            <Modal.Header closeButton>
-                <Modal.Title id="contained-modal-title-vcenter">
+            <Modal.Header closeButton className={theme === 'dark' ? 'dark-mode' : ''}>
+                <Modal.Title className={`${theme === 'dark' ? 'dark-mode' : ''} modal-title`}>
                 Change Password
                 </Modal.Title>
             </Modal.Header>
-            <Modal.Body className="d-flex justify-content-center">
+            <Modal.Body className={`${theme === 'dark' ? 'dark-mode' : ''} d-flex justify-content-center`}>
                 <Form onSubmit={handleChangePassword}>
                     <Form.Group className="mb-3 label" controlId="formGroupCurrentPassword">
                         <Form.Label>Current Password</Form.Label>
@@ -492,7 +494,7 @@ function ChangePasswordModal(props) {
                     </div>
                 </Form>
             </Modal.Body>
-            <Modal.Footer>
+            <Modal.Footer className={theme === 'dark' ? 'dark-mode' : ''}>
                 <Button onClick={props.onHide}>Close</Button>
             </Modal.Footer>
             </Modal>

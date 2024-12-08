@@ -276,10 +276,6 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
                     console.error("Error fetching TomTom route:", error);
                     clearAllRoutesAndButton();
                 });
-            
-
-        
-            
 
         return () => clearAllRoutesAndButton(); 
     }, [map, start, routeTo, trafficSignals]);
@@ -288,37 +284,47 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
 };
 
 
-
 //zooms out only when a new filler is applied. Otherwise, keeps zoom level, even when a icon is clicked.
-const MapCenterUpdater = ({ nearbyLocations, selectedLocation, filterCriteria }) => {
+const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby }) => { 
     const map = useMap();
-    const prevFilter = useRef(filterCriteria);
-
+    
     useEffect(() => {
-        let newCenter;
-        let zoomLevel = map.getZoom();
+        //THIS PART IS FOR CENTERING ON FILTER CHANGE, WHICH WE DONT WANT
+        //let newCenter;
+        // let sellat = (selectedLocation?.lat ?? selectedLocation?.latitude   ?? (selectedLocation[0]?.lat || selectedLocation[0]?.latitude)  );
+        // let sellon = (selectedLocation?.lon ?? selectedLocation?.longitude  ?? (selectedLocation[0]?.lon || selectedLocation[0]?.longitude) );
+        // console.log('selectedLocation:', selectedLocation);
+        // console.log('sellat:', sellat);
+        // console.log('sellon:', sellon);
 
-        //checks if a new filter is applied.
-        const newfilter = Object.keys(filterCriteria).some(key => filterCriteria[key] && filterCriteria[key] !== prevFilter.current[key]);
-
-        if (newfilter) {
-            zoomLevel = 12;
-            prevFilter.current = {...filterCriteria};//updates prevfilter.
-        } else if (selectedLocation && (selectedLocation.lat || selectedLocation.latitude) && (selectedLocation.lon || selectedLocation.longitude)) {
-            newCenter = [selectedLocation.lat || selectedLocation.latitude, selectedLocation.lon || selectedLocation.longitude] ;
-        } else {
-            newCenter = calculateCenter(nearbyLocations);
+        // if ((selectedLocation.length >0 &&selectedLocation.length <4000) && (sellat && sellon)) {
+        //     newCenter = [sellat, sellon]; ;
+        // }
+        // else if (searchLoc && sCenter){
+        //     newCenter = [slat, slon];
+        // }
+   
+        // if (newCenter) {
+        //     map.setView(newCenter, map.getZoom());
+        //}
+        //SEARCH CENTERING && nearby (NEED TESTING)
+        let slat = (searchLoc?.lat ?? searchLoc?.latitude  );
+        let slon = (searchLoc?.lon ?? searchLoc?.longitude );
+ 
+        if (showNearby==true && nearbyLocations.length > 0  && Object.keys(searchLoc).length === 0) {  
+            map.setView(calculateCenter(nearbyLocations), map.getZoom());}
+        else if (slat && slon){    
+            map.setView([slat, slon], map.getZoom());
         }
-
-        if (newCenter || newfilter) {
-            map.setView(newCenter || map.getCenter(), zoomLevel);
-        }
-    }, [nearbyLocations, selectedLocation, filterCriteria, map]);
+   
+    }, [ nearbyLocations, showNearby, searchLoc, map]);   
 
     return null;
 };
 
-const MapComponent = ({ locations, nearbyLocations=[],selectedLocation , userCoord, destination, filterCriteria}) => {
+
+
+const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination, filterCriteria, searchLoc}) => {
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
     const [showToastError, setShowToastError] = useState(false);
     const [showToastSuccess, setShowToastSuccess] = useState(false);
@@ -460,26 +466,27 @@ const MapComponent = ({ locations, nearbyLocations=[],selectedLocation , userCoo
         });
     };
 
-    // DynamicMarker component to rescale the marker accordingly to the zoom of the map
-    const DynamicMarker = ({ position, locationType, children }) => {
-        const map = useMap();
+    useEffect(() => {
+        if (selectedLocation) {
+            setShowNearby(false);
+        }
+    }, [selectedLocation]);
 
-        useEffect(() => {
-            const handleZoom = () => {
-                const newSize = Math.max(30, map.getZoom() * 3);
-                setIconSize([newSize, newSize]);
-            };
-
-            map.on('zoom', handleZoom);
-            return () => map.off('zoom', handleZoom);
-        }, [map]);
-
-        return (
-            <Marker position={position} icon={getIconByLocationType(locationType, iconSize)} >
-                {children}
-            </Marker>
-        );
+    const handleNearbyToggle = () => {
+        setShowNearby(prevShowNearby => !prevShowNearby);
+        if (!showNearby) {
+            setSearchTerm('');
+            setSearchLoc({});
+            // clearSearch();
+        }
+        // else if (showNearby && (selectedLocation || searchLoc)){
+        //     setSearchLoc('');
+        //     setSearchTerm('');
+        //     clearSearch();
+        //     setShowNearby(false);
+        // }
     };
+
     // Filter locations based on the criteria
     const filteredNearbyLocations = nearbyLocations.filter(location =>
         Object.keys(filterCriteria).every(key => !filterCriteria[key] || location[key] === filterCriteria[key])
@@ -517,14 +524,15 @@ const MapComponent = ({ locations, nearbyLocations=[],selectedLocation , userCoo
         <div>
             <ReviewSideBar show={showReview} handleClose={handleReviewToggle} location={recentlyOpened} rating={locationRating}/>
             {/* Checkbox to toggle between showing all or nearby locations */}
-            <label htmlFor="showNearby" style={{ marginLeft: '42%', marginTop: '5px' }} >
+            <label htmlFor="showNearby" style={{ marginLeft: '42%', marginTop: '5px', marginBottom: '0px' }} >
                     <input
                         id="showNearby"
                         type="checkbox"
                         // className={`${theme}`}
                         checked={showNearby}
-                        onChange={() => setShowNearby(!showNearby)}
+                        onChange={handleNearbyToggle}
                     />
+                    {/* onChange={() => setShowNearby(!showNearby)} */}
                     Show Nearby Locations Only
             </label>
 
@@ -548,14 +556,19 @@ const MapComponent = ({ locations, nearbyLocations=[],selectedLocation , userCoo
             zoom={13} 
             maxBounds={nycBounds} 
             maxBoundsViscosity={1.0}
-            style={{ height: '71vh', width: '100vw' }}>
+            style={{ height: '81vh', width: '100vw' }}>
                 {/* Add OpenStreetMap tile layer */}
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
                 {/* This component will update the map center when nearbyLocations changes */}
-                <MapCenterUpdater nearbyLocations={nearbyLocations} selectedLocation={selectedLocation ? [selectedLocation] : filteredLocations} filterCriteria={filterCriteria} />
+                <MapCenterUpdater 
+                nearbyLocations={nearbyLocations} 
+                // selectedLocation={selectedLocation ? [selectedLocation] : filteredLocations}
+                showNearby={showNearby}
+                searchLoc={searchLoc}
+                />
                 <RoutingMachine start={userCoord} routeTo={destination} trafficSignals={locations.filter(loc => loc.location_type === "pedestrian_signal")}/>
                 {/* Render Markers for filtered locations */}
                 {locationsToShow.map((location, index) => {
@@ -564,11 +577,6 @@ const MapComponent = ({ locations, nearbyLocations=[],selectedLocation , userCoo
 
                     if (lat && lon) {
                         return (
-                            // <DynamicMarker 
-                            //     key={index} 
-                            //     position={[lat, lon]} 
-                            //     locationType={location.location_type}
-                            // >
                              <Marker 
                                 key={index} 
                                 position={[lat, lon]} 
@@ -642,7 +650,7 @@ const MapComponent = ({ locations, nearbyLocations=[],selectedLocation , userCoo
                                     {location.location_type === 'restroom' && (
                                         <div className={`info-container ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                             <div>
-                                                <strong>{location.facility_name || 'Unnamed Restroom'}</strong><br />
+                                                <strong>{location.Name || 'Unnamed Restroom'}</strong><br />
                                                 <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
                                                 <strong>Location:</strong> {location.Location}<br />
                                                 <strong>Operator:</strong> {location.operator}<br />
@@ -691,7 +699,7 @@ const MapComponent = ({ locations, nearbyLocations=[],selectedLocation , userCoo
                                     {location.location_type === 'pedestrian_signal' && (
                                         <div className={`info-container ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                             <div>
-                                                <strong>{location.Location || 'Unnamed Pedestrian Signal'}</strong><br />
+                                                <strong>{location.Name || 'Unnamed Pedestrian Signal'}</strong><br />
                                                 <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
                                                 <strong>Borough:</strong> {location.borough}<br />
                                                 <strong>Installation Date:</strong> {new Date(location.date_insta).toLocaleDateString()}<br />
@@ -833,7 +841,7 @@ function DirectionModal(props) {
             centered
         >
             <Modal.Header className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"} closeButton>
-                <Modal.Title className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"} id="contained-modal-title-vcenter">
+                <Modal.Title className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"}>
                     Directions
                 </Modal.Title>
             </Modal.Header>
@@ -857,7 +865,7 @@ function DirectionModal(props) {
                         </div>
                     )}
                     <Button variant="outline-primary" className='addButton' style={{ borderRadius: '20px' }} onClick={() => setSearchTerm('Your Location')}>Your Location</Button>
-                    <Button variant="outline-success" className='addButton' style={{ borderRadius: '20px' }} type="submit">Find Route</Button>
+                    <Button variant="outline-success" className='addButton' style={{ borderRadius: '20px' }} type="submit">Accessible Walking Route</Button>
                 </Form>
             </Modal.Body>
             <Modal.Footer className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"}>

@@ -17,8 +17,7 @@ function AboutUsModal(props) {
             <Modal.Header className={theme === 'dark' ? 'dark-mode' : ''}
                 closeButton>
                 <Modal.Title 
-                    id="contained-modal-title-vcenter"
-                    className="modal-title"
+                    className={`${theme === 'dark' ? 'dark-mode' : ''} modal-title`}
                 >
                     About Us
                 </Modal.Title>
@@ -50,7 +49,7 @@ function EmailModal(props) {
         >
         <Modal.Header className={theme === 'dark' ? 'dark-mode' : ''}
             closeButton>
-            <Modal.Title id="contained-modal-title-vcenter">
+            <Modal.Title className={`${theme === 'dark' ? 'dark-mode' : ''} modal-title`}>
             Contact Information
             </Modal.Title>
         </Modal.Header>
@@ -78,7 +77,7 @@ function PhoneModal(props) {
         >
         <Modal.Header className={theme === 'dark' ? 'dark-mode' : ''}
         closeButton >
-            <Modal.Title id="contained-modal-title-vcenter">
+            <Modal.Title className={`${theme === 'dark' ? 'dark-mode' : ''} modal-title`}>
             Contact Information
             </Modal.Title>
         </Modal.Header>
@@ -106,7 +105,7 @@ function HelpFAQModal(props) {
         >
         <Modal.Header className={theme === 'dark' ? 'dark-mode' : ''}
         closeButton>
-            <Modal.Title id="contained-modal-title-vcenter">
+            <Modal.Title className={`${theme === 'dark' ? 'dark-mode' : ''} modal-title`}>
             Help & FAQs
             </Modal.Title >
         </Modal.Header>
@@ -124,6 +123,14 @@ function HelpFAQModal(props) {
             <p>
             Our data is sourced from NYC Open Data, which provides public datasets on accessible facilities in the city. We regularly update our platform to ensure that the 
             information is current and reliable.
+            </p>
+            <h4>How does our accessible directions work?</h4>
+            <p>
+            Our accessible path feature finds the path with the most amount of accessible light so our users can better navigate nyc.
+            </p>
+            <h4>What does the accessiblity review tell me?</h4>
+            <p>
+            Our accessibility review shows the user how accessible a location is. This rating is based on user input and how they feel about the accessibility of the location.
             </p>
         </Modal.Body>
         <Modal.Footer className={theme === 'dark' ? 'dark-mode' : ''}>

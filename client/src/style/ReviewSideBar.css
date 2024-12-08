@@ -115,4 +115,17 @@ text-align: center;
     margin-top: 0;
     padding-top: 0;
 }
+
+.collapsible {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .read-more {
+    color: blue;
+    cursor: pointer;
+  }
   

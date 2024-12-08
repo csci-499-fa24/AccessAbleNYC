@@ -43,7 +43,7 @@ router.get('/locations', async (req, res) => {
 
 // Route to fetch locations near the user's coordinates
 router.get('/locations/nearby', async (req, res) => {
-    const { lat, lon, distance = 2000 } = req.query; // Default set to 2000 meters
+    const { lat, lon, distance = 4000 } = req.query; // Default set to 2000 meters
 
     // Validate that lat and lon are provided
     if (!lat || !lon) {

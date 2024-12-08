@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef} from 'react';
 import '../style/Search.css';
 
-const SearchBar = ({ onSearch }) => {
+const SearchBar = ({ onSearch }) => {       
+    // , clearSearch
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [name, setName] = useState('');
     const dropdownRef = useRef(null);
+    const [searchLoc, setSearchLoc] = useState({})
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -48,31 +50,33 @@ const SearchBar = ({ onSearch }) => {
             }
         } else {
             setSearchResults([]);
-            onSearch('');
+            onSearch('', {});
         }
     };
 
     const handleSearchSubmit = (event) => {
         event.preventDefault();
-        onSearch(searchTerm);
+        onSearch(searchTerm, searchLoc);
     };
 
-    const handleLocationSelection = (location) => {
-        setSearchTerm(location); //location rather name location.name; allows the search bar to be autofilled with the name of the location the user selects
-        onSearch(location);
+    const handleLocationSelection = (result) => {
+        setSearchTerm(result.Name); //location rather name location.name; allows the search bar to be autofilled with the name of the location the user selects
+        onSearch(result.Name, result);
         setSearchResults([]);
+        setSearchLoc(result);
     };
 
 
     return (
         <div className="search-bar">
-            <div className="greeting-message">Welcome, {name}</div>
-            <div className="search-message">Find the accessibilities around you</div>
+            {/* <div className="greeting-message">Welcome, {name}</div> */}
+            <div className="search-message">Explore an Accessible NYC
+            </div>
             <form className="d-flex" onSubmit={handleSearchSubmit}>
                 <input
                     className="form-control me-2"
                     type="search"
-                    placeholder="Search"
+                    placeholder="Search places . . ."
                     aria-label="Search"
                     value={searchTerm}
                     onChange={handleSearch}
@@ -85,7 +89,7 @@ const SearchBar = ({ onSearch }) => {
             {searchResults.length > 0 && (
                 <div ref={dropdownRef} className="dropdown-menu show position-absolute">
                     {searchResults.map((result, index) => (
-                        <button key={index} className="dropdown-item" onClick={() => handleLocationSelection(result.Name)}>
+                        <button key={index} className="dropdown-item" onClick={() => handleLocationSelection(result)}>
                             {result.Name}
                         </button>
                     ))}
