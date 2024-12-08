@@ -316,20 +316,24 @@ const useFetchLocationCoords = (locationName) => {
         }
     }, [locationName]);
 
-    return locationCoords;
+    return { locationCoords, setLocationCoords };
 };
 //zooms out only when a new filler is applied. Otherwise, keeps zoom level, even when a icon is clicked.
-const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby, selectedLocation}) => { 
+const MapCenterUpdater = ({ nearbyLocations, searchLoc, showNearby, selectedLocation}) => { 
     const map = useMap();
-    const location = useLocation();
     const params = new URLSearchParams(location.search);
     const locationName = params.get('location');
+    const { locationCoords, setLocationCoords } = useFetchLocationCoords(locationName);
 
-    const locationCoords = useFetchLocationCoords(locationName);
-
-      
-    
     useEffect(() => {
+        if (searchLoc && Object.keys(searchLoc).length > 0) {
+            setLocationCoords(null);
+        }
+    }, [searchLoc, setLocationCoords]);
+
+
+    useEffect(() => {
+
         //THIS PART IS FOR CENTERING ON FILTER CHANGE, WHICH WE DONT WANT
         //let newCenter;
         // let sellat = (selectedLocation?.lat ?? selectedLocation?.latitude   ?? (selectedLocation[0]?.lat || selectedLocation[0]?.latitude)  );
@@ -354,14 +358,14 @@ const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby, selectedLoc
         } else {
             let slat = (searchLoc?.lat ?? searchLoc?.latitude  );
             let slon = (searchLoc?.lon ?? searchLoc?.longitude );
-    
+ 
             if (showNearby==true && nearbyLocations.length > 0  && Object.keys(searchLoc).length === 0) {  
                 map.setView(calculateCenter(nearbyLocations), map.getZoom());}
             else if (slat && slon){    
                 map.setView([slat, slon], map.getZoom());
             }
         }
-    }, [locationCoords, nearbyLocations, showNearby, searchLoc, selectedLocation, map]);
+    }, [ locationCoords, nearbyLocations, showNearby, searchLoc, map]);
 
     return null;
 };
