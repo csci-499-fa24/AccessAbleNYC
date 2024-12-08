@@ -122,15 +122,15 @@ function HelpFAQModal(props) {
             <h4>Where does the data come from?</h4>
             <p>
             Our data is sourced from NYC Open Data, which provides public datasets on accessible facilities in the city. We regularly update our platform to ensure that the 
-            information is current and reliable.
+            information is current and reliable. 
             </p>
             <h4>How does our accessible directions work?</h4>
             <p>
-            Our accessible path feature finds the path with the most amount of accessible light so our users can better navigate nyc.
+            Our accessible path feature finds the path with the most amount of accessible light so our users can better navigate NYC.
             </p>
             <h4>What does the accessiblity review tell me?</h4>
             <p>
-            Our accessibility review shows the user how accessible a location is. This rating is based on user input and how they feel about the accessibility of the location.
+            Our accessibility review shows the user how accessible a location is. This rating is based on user input and how they feel about the accessibility of the location. Your reviews and ratings are essential in providing other users with the most up-to-date information about the accessibility and usability of locations, ensuring a more informed and inclusive experience for everyone.
             </p>
         </Modal.Body>
         <Modal.Footer className={theme === 'dark' ? 'dark-mode' : ''}>
