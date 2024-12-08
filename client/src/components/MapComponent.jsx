@@ -283,7 +283,7 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
 
 
 //zooms out only when a new filler is applied. Otherwise, keeps zoom level, even when a icon is clicked.
-const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby }) => { 
+const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby, setMarkerLoc, markerLoc}) => { 
     const map = useMap();
     
     useEffect(() => {
@@ -308,14 +308,23 @@ const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby }) => {
         //SEARCH CENTERING && nearby (NEED TESTING)
         let slat = (searchLoc?.lat ?? searchLoc?.latitude  );
         let slon = (searchLoc?.lon ?? searchLoc?.longitude );
- 
-        if (showNearby==true && nearbyLocations.length > 0  && Object.keys(searchLoc).length === 0) {  
-            map.setView(calculateCenter(nearbyLocations), map.getZoom());}
+
+        if (markerLoc){
+            map.setView(markerLoc, map.getZoom());
+            setTimeout(() => setMarkerLoc(null), 300); 
+            return
+        }
+        else if (showNearby==true && nearbyLocations.length > 0  && Object.keys(searchLoc).length === 0 && (map.getZoom()<14) && !markerLoc  ) {  
+            map.setView(calculateCenter(nearbyLocations), map.getZoom());
+            return
+        }
         else if (slat && slon){    
             map.setView([slat, slon], map.getZoom());
+            return
         }
+     
    
-    }, [ nearbyLocations, showNearby, searchLoc, map]);   
+    }, [ nearbyLocations, showNearby, searchLoc, markerLoc, setMarkerLoc, map]);   
 
     return null;
 };
@@ -339,6 +348,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
     const [showReview, setShowReview] = useState(false);
 
     const handleReviewToggle = () => setShowReview(!showReview);
+    const [markerLoc, setMarkerLoc] = useState(null);
 
     //Dark Mode for Map Component
     useEffect(() => {
@@ -400,14 +410,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
         if (!showNearby) {
             setSearchTerm('');
             setSearchLoc({});
-            // clearSearch();
         }
-        // else if (showNearby && (selectedLocation || searchLoc)){
-        //     setSearchLoc('');
-        //     setSearchTerm('');
-        //     clearSearch();
-        //     setShowNearby(false);
-        // }
     };
 
     // Filter locations based on the criteria
@@ -464,7 +467,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
             zoom={13} 
             maxBounds={nycBounds} 
             maxBoundsViscosity={1.0}
-            style={{ height: '81vh', width: '100vw' }}>
+            style={{ height: '71vh', width: '100vw' }}>
                 {/* Add OpenStreetMap tile layer */}
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -476,6 +479,8 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                 // selectedLocation={selectedLocation ? [selectedLocation] : filteredLocations}
                 showNearby={showNearby}
                 searchLoc={searchLoc}
+                markerLoc={markerLoc}
+                setMarkerLoc={setMarkerLoc}
                 />
                 <RoutingMachine start={userCoord} routeTo={destination} trafficSignals={locations.filter(loc => loc.location_type === "pedestrian_signal")}/>
                 {/* Render Markers for filtered locations */}
@@ -492,6 +497,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                 eventHandlers={{
                                     click: () => {
                                         console.log(location._id);
+                                        setMarkerLoc([lat, lon])
                                         setRecentlyOpened(location);
                                         handleGetAccessibleRating(location._id);
                                     }

@@ -7,6 +7,7 @@ const SearchBar = ({ onSearch }) => {
     const [searchResults, setSearchResults] = useState([]);
     const [name, setName] = useState('');
     const [searchLoc, setSearchLoc] = useState({})
+    const [isLocSelected, setIsLocSelected] = useState(false); 
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -39,14 +40,24 @@ const SearchBar = ({ onSearch }) => {
     const handleSearchSubmit = (event) => {
         event.preventDefault();
         onSearch(searchTerm, searchLoc);
+        setIsLocSelected(true);
     };
 
     const handleLocationSelection = (result) => {
-        setSearchTerm(result.Name); //location rather name location.name; allows the search bar to be autofilled with the name of the location the user selects
+        setSearchTerm(result.Name);
         onSearch(result.Name, result);
-        setSearchResults([]);
         setSearchLoc(result);
+        setSearchResults([]);
+        setIsLocSelected(true);
     };
+
+    useEffect(() => {
+        if (isLocSelected) {
+            setSearchResults([]);
+            setSearchLoc({});
+            setIsLocSelected(false);
+            setSearchTerm('');
+        }}, [isLocSelected]);
 
 
     return (

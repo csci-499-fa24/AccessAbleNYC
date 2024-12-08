@@ -206,8 +206,8 @@ function Home() {
             <SearchBar 
                 onSearch={handleSearch} 
                 searchTerm={searchTerm} 
-                searchLoc ={searchLoc} />
-                {/* clearSearch={clearSearch} */}
+                searchLoc ={searchLoc} 
+                setSearchLoc={setSearchLoc}/>
             <Button variant="secondary" className="filter-button" onClick={handleFilterToggle}>
                 Filter By
             </Button>
@@ -222,7 +222,7 @@ function Home() {
                 destination={destination}
                 filterCriteria={filterCriteria}
                 searchLoc={searchLoc}
-                ///* clearSearch={clearSearch} */
+                setSearchLoc={setSearchLoc}
             />
             <Toast onClose={() => setShowCookieNotification(false)} show={showCookieNotification} delay={3000} autohide className="toast-bottom-right" bg="info">
                 <Toast.Header>
