@@ -353,13 +353,13 @@ const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby, selectedLoc
             map.setView([locationCoords.lat, locationCoords.lon], map.getZoom());
         } else {
             let slat = (searchLoc?.lat ?? searchLoc?.latitude  );
-        let slon = (searchLoc?.lon ?? searchLoc?.longitude );
- 
-        if (showNearby==true && nearbyLocations.length > 0  && Object.keys(searchLoc).length === 0) {  
-            map.setView(calculateCenter(nearbyLocations), map.getZoom());}
-        else if (slat && slon){    
-            map.setView([slat, slon], map.getZoom());
-        }
+            let slon = (searchLoc?.lon ?? searchLoc?.longitude );
+    
+            if (showNearby==true && nearbyLocations.length > 0  && Object.keys(searchLoc).length === 0) {  
+                map.setView(calculateCenter(nearbyLocations), map.getZoom());}
+            else if (slat && slon){    
+                map.setView([slat, slon], map.getZoom());
+            }
         }
     }, [locationCoords, nearbyLocations, showNearby, searchLoc, selectedLocation, map]);
 
