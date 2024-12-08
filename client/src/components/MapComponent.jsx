@@ -290,9 +290,8 @@ const useFetchLocationCoords = (locationName) => {
     useEffect(() => {
         if (locationName) {
             console.log("Fetching coordinates for:", locationName);
-            const url = `${import.meta.env.VITE_PORT}/location/${encodeURIComponent(locationName)}`;
+            fetch(`${import.meta.env.VITE_PORT}/location/${locationName}`)
 
-            fetch(url)
             .then((response) => {
                 if (!response.ok) {
                     throw new Error(`Error: ${response.status} - ${response.statusText}`);
@@ -300,13 +299,12 @@ const useFetchLocationCoords = (locationName) => {
                 return response.json();
             })
             .then((data) => {
-                console.log("Data received from API:", data);
-
+                
                 const lat = data.latitude;
                 const lon = data.longitude; 
 
                 if (lat && lon) {
-                    console.log("Using coordinates:", { lat, lon });
+                    console.log(" coordinates:", { lat, lon });
                     setLocationCoords({ lat, lon });
                 } else {
                     console.error("Coordinates not found for the location.");
