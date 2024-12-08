@@ -6,7 +6,8 @@ const reviewSchema= new mongoose.Schema({
         required:true
     },
     userId: { 
-        type: mongoose.Schema.Types.ObjectId, 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
         required: true
     },
     rating: {
@@ -21,10 +22,18 @@ const reviewSchema= new mongoose.Schema({
             message: props => `${props.value} is not a valid rating!`
         }
     },
+
+    date:{
+        type: Date,
+        default: Date.now
+    },
+    
     review:{
         type: String,
         required:true
     }
+
+    
 },
     {
         timestamps:true

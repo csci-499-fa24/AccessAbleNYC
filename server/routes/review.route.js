@@ -60,7 +60,9 @@ router.get('/review/:locationId', async (req, res) => {
     }
 
     try {
-        const reviews = await Review.find({ locationId });
+        const reviews = await Review.find({ locationId })
+        .populate('userId','name') 
+        .select(' rating review date');
 
         console.log(reviews[0]);
         if (!reviews || reviews.length === 0) {

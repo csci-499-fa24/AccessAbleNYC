@@ -13,6 +13,8 @@ import Form from 'react-bootstrap/Form';
 import { useNavigate } from 'react-router-dom';
 import '../style/MapComponent.css';
 import ReviewSideBar from './ReviewSideBar';
+import Cookies from 'js-cookie';
+
 
 // Def custom icons for each location type
 const beachIconUrl = '/assets/beach-100.png';
@@ -316,7 +318,7 @@ const MapCenterUpdater = ({ nearbyLocations, selectedLocation, filterCriteria })
     return null;
 };
 
-const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination, filterCriteria}) => {
+const MapComponent = ({ locations, nearbyLocations=[],selectedLocation , userCoord, destination, filterCriteria}) => {
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
     const [showToastError, setShowToastError] = useState(false);
     const [showToastSuccess, setShowToastSuccess] = useState(false);
@@ -331,6 +333,12 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
 
     const [locationRating, setLocationRating] = useState('-');
     const [showReview, setShowReview] = useState(false);
+    
+    //const [userLocation, setUserLocation] = useState(null);
+    //const [nearbyLocations, setNearbyLocations] = useState([]);
+    //const [loading, setLoading] = useState(false);  
+    //const [error, setError] = useState("");  
+
 
     const handleReviewToggle = () => setShowReview(!showReview);
 
@@ -346,6 +354,14 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
     }, [theme]);
 
     useEffect(() => {
+        if (selectedLocation) {
+            setShowNearby(false);  
+        } else {
+            setShowNearby(true);  
+        }
+    }, [selectedLocation]);
+
+    useEffect(() => {
         const token = localStorage.getItem('token');
 
         if (token) {
@@ -353,6 +369,67 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
             setUserId(decodedToken.id);
         }
     }, []);
+
+
+    /*
+    const fetchNearbyLocations = (latitude, longitude) => {
+        setLoading(true);
+        fetch(`${import.meta.env.VITE_PORT}/locations/nearby?lat=${latitude}&lon=${longitude}`)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Error fetching nearby locations");
+                }
+                return response.json();
+            })
+            .then((data) => {
+                setNearbyLocations(data); 
+                setLoading(false);
+            })
+            .catch((error) => {
+                setError("Error fetching nearby locations: " + error.message);
+                setLoading(false);
+            });
+    };
+
+
+    const handleToggleNearby = () => {
+        setShowNearby((prevShowNearby) => {
+            const newShowNearby = !prevShowNearby;
+    
+            if (newShowNearby) {
+                const storedLocation = Cookies.get('location');
+                if (storedLocation) {
+                    const { latitude, longitude } = JSON.parse(storedLocation);
+                    setUserLocation({ latitude, longitude });
+                    fetchNearbyLocations(latitude, longitude); 
+                } else if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const { latitude, longitude } = position.coords;
+                            fetchNearbyLocations(latitude, longitude); 
+                        },
+                        (error) => {
+                            setError("Geolocation error: " + error.message);
+                        }
+                    );
+                } else {
+                    setError("Geolocation is not supported by this browser.");
+                }
+            } else {
+                setNearbyLocations([]);
+            }
+    
+            return newShowNearby;
+        });
+    };
+
+    useEffect(()=>{
+        if(userLocation)
+        {
+            fetchNearbyLocations(userLocation.latitude,userLocation.longitude);
+        }
+    })
+        */
 
     const handleAddLocation1 = (locationId) => {
         if (!userId) {
@@ -450,6 +527,21 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                     />
                     Show Nearby Locations Only
             </label>
+
+            {/*
+            {userLocation && (
+                <MapContainer center={[userLocation.latitude, userLocation.longitude]} zoom={13} style={{ width: '100%', height: '400px' }}>
+                    {showNearby && nearbyLocations.map((location, index) => (
+                        <Marker key={index} position={{ lat: location.latitude, lng: location.longitude }}>
+                            <Popup>{location.name}</Popup>
+                        </Marker>
+                    ))}
+                </MapContainer>
+            )}
+            */}
+            
+
+            
             <MapContainer 
             id = 'map'
             center={[40.7128, -74.0060]} 

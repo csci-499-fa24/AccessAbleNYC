@@ -65,7 +65,11 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
                 setReviewLength(reviews.length);
 
                 if (isAuthenticated){
-                    setUserReview(reviews.filter((review) => review.userId === userId)[0]);
+                    const matchedReview = reviews.find((review)=>{
+                        return String(review.userId._id) === String(userId) || String(review.userId) === String(userId) ;
+                    })
+
+                    setUserReview(matchedReview);
                 }
                 
                 const fiveStar = reviews.filter((review) => review.rating === 5).length;
@@ -188,7 +192,16 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
                     ) : null}
                 {locationReviews.map((review, index) => (
                     <Card key={index} border="secondary" className='userReviews'>
-                    <Card.Header>{review.userId}</Card.Header>
+                    <Card.Header className="d-flex justify-content-between align-items-center">
+                    <span>{review.userId.name}</span>
+                    <span className="text-muted" style={{ fontSize: "0.9rem" }}>
+                        {new Date(review.date).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                        })}
+                    </span>
+                    </Card.Header>
                     <Card.Body>
                         <div className='userReview'>
                             <span>Accessibility Rating: </span><StarRating rating={review.rating}></StarRating>
