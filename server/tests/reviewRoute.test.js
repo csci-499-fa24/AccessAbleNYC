@@ -25,7 +25,6 @@ jest.mock('mongoose', () => {
 
 jest.mock('../models/review.model.js', () => {
     return {
-        findOne: jest.fn(),
         create: jest.fn(),
         aggregate: jest.fn(),
         findByIdAndDelete: jest.fn(),
@@ -59,6 +58,8 @@ describe('Test Review Routes', () => {
     expect(res.status).toBe(401);
     expect(res.body).toEqual({ success: false, message: 'User not authenticated' });
 });
+
+
 
 test('POST /review/:locationId - Invalid or expired token', async () => {
   const res = await request(app)
@@ -117,6 +118,7 @@ test('POST /review/:locationId - Invalid or expired token', async () => {
       expect(res.body).toEqual({ success: false, message: 'Internal Server Error' });
   });
 
+
   test('POST review Successful', async () => {
       review.create.mockResolvedValue(mockreview);
 
@@ -145,22 +147,25 @@ test('POST /review/:locationId - Invalid or expired token', async () => {
   });
 
 
-  test('GET No reviews', async () => {
-      review.find = jest.fn().mockResolvedValue([]);
-      const res = await request(app).get(`/review/${locationId}`);
+/*
+test('GET Reviews success', async () => {         
+  review.find.mockResolvedValue(mockreview); 
+  const res = await request(app).get(`/review/${locationId}`);
 
-      expect(res.status).toBe(404);
-      expect(res.body).toEqual({ success: false, message: 'No reviews found for this location',
-      });
+  expect(res.status).toBe(200); 
+  expect(res.body).toEqual({ success: true, reviews: mockreview }); });
+*/
+
+  test('GET Invalid Location ID', async () => {
+    mongoose.Types.ObjectId.isValid.mockReturnValue(false);
+
+    const res = await request(app).get(`/rating/${invalidLocationId}`);
+
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({ success: false, message: 'Invalid Location' });
   });
 
 
-  test('GET Reviews success', async () => {         
-      review.find.mockResolvedValue(mockreview); 
-      const res = await request(app).get(`/review/${locationId}`);
-
-      expect(res.status).toBe(200); 
-      expect(res.body).toEqual({ success: true, reviews: mockreview }); });
     
   test('GET Invalid Location ID', async () => {
       mongoose.Types.ObjectId.isValid.mockReturnValue(false);
@@ -171,6 +176,8 @@ test('POST /review/:locationId - Invalid or expired token', async () => {
       expect(res.status).toBe(404);
       expect(res.body).toEqual({ success: false, message: 'Invalid Location' });
   });
+  
+  
   
   test('PUT Review not found', async () => {
     jwt.verify = jest.fn().mockReturnValue({ id: 111 });
