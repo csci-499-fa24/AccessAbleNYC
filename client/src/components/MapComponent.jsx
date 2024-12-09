@@ -290,8 +290,8 @@ const useFetchLocationCoords = (locationName) => {
     useEffect(() => {
         if (locationName) {
             console.log("Fetching coordinates for:", locationName);
-            fetch(`${import.meta.env.VITE_PORT}/location/${locationName}`)
-
+            const encodedLocationName = encodeURIComponent(locationName);
+            fetch(`${import.meta.env.VITE_PORT}/location/${encodedLocationName}`)
             .then((response) => {
                 if (!response.ok) {
                     throw new Error(`Error: ${response.status} - ${response.statusText}`);
