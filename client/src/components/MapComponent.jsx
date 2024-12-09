@@ -112,6 +112,7 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
     const routingLayerRef = useRef(null); 
     const closeControlRef = useRef(null); 
     const instructionControlRef = useRef(null);
+    const {theme} = useTheme();
 
     const clearAllRoutesAndButton = () => {
         console.log("Clearing all routes and button...");
@@ -180,7 +181,8 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
         instructionControlRef.current = L.control({ position: "bottomleft" });
         instructionControlRef.current.onAdd = () => {
             const div = L.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom instructions-box");
-            div.style.backgroundColor = "#fff";
+            div.style.backgroundColor = theme === 'dark' ? '#333' : '#fff'; 
+            div.style.color = theme === 'dark' ? '#fff' : '#000'; 
             div.style.padding = "10px";
             div.style.maxHeight = "200px";
             div.style.overflowY = "auto";
