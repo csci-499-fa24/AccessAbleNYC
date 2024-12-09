@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import '../style/Search.css';
 
 const SearchBar = ({ onSearch }) => {       
@@ -8,6 +8,7 @@ const SearchBar = ({ onSearch }) => {
     const [name, setName] = useState('');
     const [searchLoc, setSearchLoc] = useState({})
     const [isLocSelected, setIsLocSelected] = useState(false); 
+    const searchRef = useRef(null);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -58,9 +59,19 @@ const SearchBar = ({ onSearch }) => {
             setIsLocSelected(false);
         }}, [isLocSelected]);
 
+    const handleClickOut = (event) => {
+        if (searchRef.current && !searchRef.current.contains(event.target)) {
+            setSearchResults([]); 
+        }
+        };
+    
+        useEffect(() => {
+             document.addEventListener('mousedown', handleClickOut);
+        return () => {document.removeEventListener('mousedown', handleClickOut); };
+        }, []);
 
     return (
-        <div className="search-bar">
+        <div ref ={searchRef} className="search-bar">
             {/* <div className="greeting-message">Welcome, {name}</div> */}
             <div className="search-message">Explore an Accessible NYC
             </div>
