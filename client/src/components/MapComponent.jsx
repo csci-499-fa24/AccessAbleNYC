@@ -346,22 +346,22 @@ const MapCenterUpdater = React.memo(({ nearbyLocations,  searchLoc, showNearby, 
         //     newCenter = [slat, slon];
         // }
         if (locationCoords) {
-            map.setView([locationCoords.lat, locationCoords.lon], map.getZoom());
+            map.setView([locationCoords.lat, locationCoords.lon], map.getZoom(), {animate: false});
         } else {
             let slat = (searchLoc?.lat ?? searchLoc?.latitude  );
             let slon = (searchLoc?.lon ?? searchLoc?.longitude );
 
             if (markerLoc){
-                map.setView(markerLoc, map.getZoom());
-                setTimeout(() => setMarkerLoc(null), 300); 
+                map.setView(markerLoc, map.getZoom(), {animate: false});
+                setMarkerLoc(null);
                 return
             }
             else if (showNearby==true && nearbyLocations.length > 0  && Object.keys(searchLoc).length === 0 && (map.getZoom()<14) && !markerLoc  ) {  
-                map.setView(calculateCenter(nearbyLocations), map.getZoom());
+                map.setView(calculateCenter(nearbyLocations), map.getZoom(), {animate: false});
                 return
             }
             else if (slat && slon){    
-                map.setView([slat, slon], map.getZoom());
+                map.setView([slat, slon], map.getZoom(), {animate: false});
                 return
             }
         }
