@@ -230,12 +230,12 @@ function Home() {
                 </Toast.Header>
                 <Toast.Body>Using cached location from cookies.</Toast.Body>
             </Toast>
-            <Toast onClose={() => setShowNoLocation(false)} show={showNoLocation} delay={3000} autohide className="toast-bottom-right" bg="danger">
+            {/* <Toast onClose={() => setShowNoLocation(false)} show={showNoLocation} delay={3000} autohide className="toast-bottom-right" bg="danger">
                 <Toast.Header>
                     <strong className="me-auto">Alert</strong>
                 </Toast.Header>
                 <Toast.Body>No locations to load</Toast.Body>
-            </Toast>
+            </Toast> */}
             <Modal show={showCookieConsent} onHide={handleDeclineCookies}>
                 <Modal.Header closeButton>
                     <Modal.Title>Cookie Consent</Modal.Title>

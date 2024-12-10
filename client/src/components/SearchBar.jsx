@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef} from 'react';
 import '../style/Search.css';
+import { useTheme } from './ThemeContext';
 
 const SearchBar = ({ onSearch }) => {       
     // , clearSearch
@@ -9,6 +10,8 @@ const SearchBar = ({ onSearch }) => {
     const dropdownRef = useRef(null);
     const [searchLoc, setSearchLoc] = useState({})
     const [isLocSelected, setIsLocSelected] = useState(false); 
+    const searchRef = useRef(null);
+    const {theme} = useTheme();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -74,18 +77,28 @@ const SearchBar = ({ onSearch }) => {
             setSearchResults([]);
             setSearchLoc({});
             setIsLocSelected(false);
-            setSearchTerm('');
+            //setSearchTerm(''); Removed; allows location name to remain in search bar once a location from the dropdown is selected
         }}, [isLocSelected]);
 
+    const handleClickOut = (event) => {
+        if (searchRef.current && !searchRef.current.contains(event.target)) {
+            setSearchResults([]); 
+        }
+        };
+    
+        useEffect(() => {
+             document.addEventListener('mousedown', handleClickOut);
+        return () => {document.removeEventListener('mousedown', handleClickOut); };
+        }, []);
 
     return (
-        <div className="search-bar">
+        <div ref ={searchRef} className="search-bar">
             {/* <div className="greeting-message">Welcome, {name}</div> */}
             <div className="search-message">Explore an Accessible NYC
             </div>
             <form className="d-flex" onSubmit={handleSearchSubmit}>
                 <input
-                    className="form-control me-2"
+                    className={`form-control me-2 ${theme === 'dark' ? 'dark-mode-input' : ''}`}
                     type="search"
                     placeholder="Search places . . ."
                     aria-label="Search"
