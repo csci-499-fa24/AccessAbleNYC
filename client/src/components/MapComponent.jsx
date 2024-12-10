@@ -291,6 +291,7 @@ const useFetchLocationCoords = (locationName) => {
         if (locationName) {
             console.log("Fetching coordinates for:", locationName);
             const encodedLocationName = encodeURIComponent(locationName);
+            console.log("Encoded Location Name:", encodedLocationName);
             fetch(`${import.meta.env.VITE_PORT}/location/${encodedLocationName}`)
             .then((response) => {
                 if (!response.ok) {
@@ -298,14 +299,11 @@ const useFetchLocationCoords = (locationName) => {
                 }
                 return response.json();
             })
-            .then((data) => {
-                
-                const lat = data.latitude;
-                const lon = data.longitude; 
-
-                if (lat && lon) {
-                    console.log(" coordinates:", { lat, lon });
-                    setLocationCoords({ lat, lon });
+            .then((data) => {          
+                const { latitude, longitude } = data;
+                if (latitude && longitude) {
+                    console.log("Coordinates:", latitude, longitude);
+                    setLocationCoords({ lat: latitude, lon: longitude });
                 } else {
                     console.error("Coordinates not found for the location.");
                 }
