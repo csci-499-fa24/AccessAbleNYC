@@ -275,7 +275,7 @@ function Profile() {
                                 {suggestLocations.length>0?(
                                     suggestLocations.map((location,index)=>(
                                         <ListGroup.Item key={index} className={`d-flex justify-content-between align-items-center ${theme}`}>
-                                            {location.facility_name || location.Name || location.ntaname || 'No Name'}
+                                            {location.Name || location.ntaname || location.facility_name || 'No Name'}
                                             <div className="d-flex gap-2"> 
                                                 <Button variant="outline-success" onClick={() => handleShow(location.Name)}>Show</Button>
                                                 <Button variant="outline-success" className='marginbutton' onClick={() => handlePathTo(location)}>Path to</Button>

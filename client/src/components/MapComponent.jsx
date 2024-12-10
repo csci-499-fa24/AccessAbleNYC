@@ -317,7 +317,7 @@ const useFetchLocationCoords = (locationName) => {
     return { locationCoords, setLocationCoords };
 };
 //zooms out only when a new filler is applied. Otherwise, keeps zoom level, even when a icon is clicked.
-const MapCenterUpdater = ({ nearbyLocations, searchLoc, showNearby, selectedLocation, setMarkerLoc, markerLoc}) => { 
+const MapCenterUpdater = React.memo(({ nearbyLocations,  searchLoc, showNearby, setMarkerLoc, markerLoc}) => { 
     const map = useMap();
     const params = new URLSearchParams(location.search);
     const locationName = params.get('location');
@@ -376,7 +376,7 @@ const MapCenterUpdater = ({ nearbyLocations, searchLoc, showNearby, selectedLoca
         }, [locationCoords, nearbyLocations, showNearby, searchLoc, markerLoc, setMarkerLoc, map]); 
     return null;
     
-};
+});
 
 
 
