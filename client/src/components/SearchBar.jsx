@@ -7,7 +7,6 @@ const SearchBar = ({ onSearch }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [name, setName] = useState('');
-    const dropdownRef = useRef(null);
     const [searchLoc, setSearchLoc] = useState({})
     const [isLocSelected, setIsLocSelected] = useState(false); 
     const searchRef = useRef(null);
@@ -20,23 +19,6 @@ const SearchBar = ({ onSearch }) => {
             setName(decodedToken.name);
         }
     }, []);
-
-    useEffect(() => {
-        const handleClick = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setSearchResults([]);
-            }
-        };
-
-
-        document.addEventListener('click', handleClick);
-
-
-        return () => {
-            document.removeEventListener('click', handleClick);
-        };
-    }, []);
-
 
     const handleSearch = async (event) => {
         setSearchTerm(event.target.value);
@@ -111,7 +93,7 @@ const SearchBar = ({ onSearch }) => {
                 </button>
             </form>
             {searchResults.length > 0 && (
-                <div ref={dropdownRef} className="dropdown-menu show position-absolute">
+                <div className="dropdown-menu show position-absolute">
                     {searchResults.map((result, index) => (
                         <button key={index} className="dropdown-item" onClick={() => handleLocationSelection(result)}>
                             {result.Name}

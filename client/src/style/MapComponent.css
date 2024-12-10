@@ -98,6 +98,7 @@
   font-size: 14px;
   border-radius: 8px;
   max-height: 250px;
+  right: 7px;
   overflow-y: auto;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
